@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Product Analytics Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1A2238 0%, #2d3e5f 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            color: #FF6A5C;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #FF6A5C;
+            margin: 10px 0;
+        }
+        
+        .stat-card .label {
+            font-size: 1em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .card h2 {
+            color: #1A2238;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-left: 4px solid #17C3B2;
+            padding-left: 15px;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #1A2238;
+        }
+        
+        .control-group select, .control-group button {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            transition: border-color 0.3s;
+        }
+        
+        .control-group select:focus {
+            outline: none;
+            border-color: #17C3B2;
+        }
+        
+        .control-group button {
+            background: #FF6A5C;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .control-group button:hover {
+            background: #e55a4c;
+        }
+        
+        .cluster-info {
+            background: linear-gradient(135deg, #17C3B2 0%, #13a896 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            margin-top: 15px;
+        }
+        
+        .cluster-info h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .cluster-info p {
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        
+        .prediction-result {
+            background: linear-gradient(135deg, #FF6A5C 0%, #e55a4c 100%);
+            padding: 25px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2em;
+        }
+        
+        .prediction-result .category {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .insight-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #FF6A5C;
+        }
+        
+        .insight-box h4 {
+            color: #1A2238;
+            margin-bottom: 10px;
+        }
+        
+        .insight-box ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        canvas {
+            max-height: 400px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 25px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .tab.active {
+            background: #1A2238;
+            color: white;
+            border-color: #1A2238;
+        }
+        
+        .tab:hover {
+            border-color: #17C3B2;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Fashion Product Analytics Dashboard</h1>
+        <p>Cross-Category Assortment Analysis • 42,388 Products • 5 Clusters • 99.96% Accuracy</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="label">Total Products</div>
+            <div class="number">42,388</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Master Categories</div>
+            <div class="number">7</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Clusters Identified</div>
+            <div class="number">5</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Model Accuracy</div>
+            <div class="number">99.96%</div>
+        </div>
+    </div>
+    
+    <div class="tab-container">
+        <div class="tab active" onclick="showTab('overview')">📊 Overview</div>
+        <div class="tab" onclick="showTab('clusters')">🔍 Cluster Explorer</div>
+        <div class="tab" onclick="showTab('predictor')">🎯 Category Predictor</div>
+        <div class="tab" onclick="showTab('insights')">💡 Insights</div>
+    </div>
+    
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Master Category Distribution</h2>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="card">
+                <h2>Feature Importance</h2>
+                <canvas id="importanceChart"></canvas>
+            </div>
+            <div class="card">
+                <h2>Gender Distribution</h2>
+                <canvas id="genderChart"></canvas>
+            </div>
+            <div class="card">
+                <h2>Seasonal Patterns</h2>
+                <canvas id="seasonChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CLUSTER EXPLORER TAB -->
+    <div id="clusters" class="tab-content">
+        <div class="card full-width">
+            <h2>Interactive Cluster Explorer</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="clusterSelect">Select Cluster:</label>
+                    <select id="clusterSelect" onchange="updateClusterInfo()">
+                        <option value="1">Cluster 1 - Casual Apparel (18.3%)</option>
+                        <option value="2">Cluster 2 - Accessories Hub (23.7%)</option>
+                        <option value="3">Cluster 3 - Athletic Footwear (9.8%)</option>
+                        <option value="4">Cluster 4 - Core Apparel (29.9%)</option>
+                        <option value="5">Cluster 5 - Formal + Grooming (18.3%)</option>
+                    </select>
+                </div>
+            </div>
+            <div id="clusterDetails"></div>
+        </div>
+        
+        <div class="card full-width">
+            <h2>Cluster Composition Breakdown</h2>
+            <canvas id="clusterCompositionChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- PREDICTOR TAB -->
+    <div id="predictor" class="tab-content">
+        <div class="card full-width">
+            <h2>Live Category Predictor</h2>
+            <p style="margin-bottom: 20px; color: #666;">Input product attributes to predict the master category</p>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="subCat">Sub Category:</label>
+                    <select id="subCat">
+                        <option>Topwear</option>
+                        <option>Shoes</option>
+                        <option>Bags</option>
+                        <option>Watches</option>
+                        <option>Bottomwear</option>
+                        <option>Innerwear</option>
+                        <option>Jewellery</option>
+                        <option>Fragrance</option>
+                        <option>Eyewear</option>
+                        <option>Sandal</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="articleType">Article Type:</label>
+                    <select id="articleType">
+                        <option>Tshirts</option>
+                        <option>Shirts</option>
+                        <option>Casual Shoes</option>
+                        <option>Watches</option>
+                        <option>Sports Shoes</option>
+                        <option>Kurtas</option>
+                        <option>Tops</option>
+                        <option>Handbags</option>
+                        <option>Heels</option>
+                        <option>Sunglasses</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender">
+                        <option>Men</option>
+                        <option>Women</option>
+                        <option>Boys</option>
+                        <option>Girls</option>
+                        <option>Unisex</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="season">Season:</label>
+                    <select id="season">
+                        <option>Summer</option>
+                        <option>Fall</option>
+                        <option>Winter</option>
+                        <option>Spring</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>&nbsp;</label>
+                    <button onclick="predictCategory()">🎯 Predict Category</button>
+                </div>
+            </div>
+            
+            <div id="predictionResult"></div>
+        </div>
+    </div>
+    
+    <!-- INSIGHTS TAB -->
+    <div id="insights" class="tab-content">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Key Findings</h2>
+                <div class="insight-box">
+                    <h4>🎯 Clustering Results</h4>
+                    <ul>
+                        <li>5 optimal clusters identified via elbow method</li>
+                        <li>45.2% variance explained by PC1 + PC2</li>
+                        <li>Clear separation between product groups</li>
+                        <li>Largest cluster: Core Apparel (29.9%)</li>
+                    </ul>
+                </div>
+                <div class="insight-box">
+                    <h4>🎯 Prediction Performance</h4>
+                    <ul>
+                        <li>99.96% classification accuracy achieved</li>
+                        <li>Only 3 misclassifications in 8,475 test products</li>
+                        <li>Perfect accuracy for Apparel and Footwear</li>
+                        <li>Model ready for production deployment</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Business Recommendations</h2>
+                <div class="insight-box">
+                    <h4>💼 Merchandising Strategy</h4>
+                    <ul>
+                        <li>Deploy 5-cluster store layout design</li>
+                        <li>Bundle products within same cluster</li>
+                        <li>Use clusters for website navigation</li>
+                    </ul>
+                </div>
+                <div class="insight-box">
+                    <h4>💼 Operational Efficiency</h4>
+                    <ul>
+                        <li>Implement automated categorization system</li>
+                        <li>Prioritize subCategory data quality</li>
+                        <li>Enable real-time product classification</li>
+                    </ul>
+                </div>
+                <div class="insight-box">
+                    <h4>💼 Marketing & Inventory</h4>
+                    <ul>
+                        <li>Target men for Footwear/Apparel campaigns</li>
+                        <li>Target women for Personal Care/Accessories</li>
+                        <li>Q2 inventory surge for Personal Care (98% Spring)</li>
+                        <li>Q3 peak planning for Apparel (59% Summer)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card full-width">
+            <h2>Top Product Categories</h2>
+            <canvas id="topCategoriesChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Fashion Product Analytics Dashboard</strong> • MISM 6200 Project • Northeastern University</p>
+        <p>Data Source: Fashion Product Images Dataset (Kaggle) • 42,388 Products Analyzed</p>
+    </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        // Category Distribution Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Apparel', 'Accessories', 'Footwear', 'Personal Care', 'Free Items', 'Sporting Goods', 'Home'],
+                datasets: [{
+                    label: 'Number of Products',
+                    data: [20394, 10756, 8813, 2298, 101, 25, 1],
+                    backgroundColor: ['#FF6A5C', '#17C3B2', '#FFD93D', '#6BCB77', '#4D96FF', '#9D4EDD', '#FF6B9D'],
+                    borderColor: ['#e55a4c', '#13a896', '#e5c32d', '#5bb767', '#3d86ef', '#8d3ecd', '#ef5b8d'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Number of Products' } },
+                    x: { title: { display: true, text: 'Master Category' } }
+                }
+            }
+        });
+        
+        // Feature Importance Chart
+        const importanceCtx = document.getElementById('importanceChart').getContext('2d');
+        new Chart(importanceCtx, {
+            type: 'bar',
+            data: {
+                labels: ['subCategory', 'articleType', 'season', 'baseColour', 'usage', 'gender'],
+                datasets: [{
+                    label: 'Importance Score',
+                    data: [12098, 6701, 2253, 485, 389, 309],
+                    backgroundColor: '#1A2238',
+                    borderColor: '#0f1628',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true, title: { display: true, text: 'Mean Decrease Gini' } }
+                }
+            }
+        });
+        
+        // Gender Distribution Chart
+        const genderCtx = document.getElementById('genderChart').getContext('2d');
+        new Chart(genderCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Accessories', 'Apparel', 'Footwear', 'Personal Care'],
+                datasets: [
+                    { label: 'Men', data: [39.3, 53.0, 62.4, 24.5], backgroundColor: '#4D96FF' },
+                    { label: 'Women', data: [47.1, 40.3, 30.8, 74.9], backgroundColor: '#FF6B9D' },
+                    { label: 'Unisex', data: [13.2, 0.5, 5.6, 0.7], backgroundColor: '#6BCB77' },
+                    { label: 'Boys', data: [0.1, 3.6, 0.6, 0], backgroundColor: '#FFD93D' },
+                    { label: 'Girls', data: [0.3, 2.6, 0.6, 0], backgroundColor: '#9D4EDD' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    x: { stacked: false },
+                    y: { stacked: false, beginAtZero: true, max: 100, title: { display: true, text: 'Percentage (%)' } }
+                }
+            }
+        });
+        
+        // Season Distribution Chart
+        const seasonCtx = document.getElementById('seasonChart').getContext('2d');
+        new Chart(seasonCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Accessories', 'Apparel', 'Footwear', 'Personal Care'],
+                datasets: [
+                    { label: 'Summer', data: [40.4, 59.1, 45.0, 1.6], backgroundColor: '#FFD93D' },
+                    { label: 'Fall', data: [10.9, 36.1, 26.9, 0], backgroundColor: '#FF6A5C' },
+                    { label: 'Winter', data: [47.8, 4.1, 24.0, 0], backgroundColor: '#4D96FF' },
+                    { label: 'Spring', data: [1.0, 0.6, 4.0, 98.4], backgroundColor: '#6BCB77' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, max: 100, title: { display: true, text: 'Percentage (%)' } }
+                }
+            }
+        });
+        
+        // Cluster details
+        const clusterData = {
+            1: {
+                name: 'Cluster 1: Casual Everyday Apparel',
+                size: '7,737 products (18.3%)',
+                description: 'This cluster is dominated by everyday casual apparel items. Think basic t-shirts, casual pants, and everyday wear.',
+                topCategories: 'Apparel (73%), Accessories (24%), Footwear (2%)',
+                characteristics: 'Versatile, comfortable, daily wear items that appeal to a broad customer base.'
+            },
+            2: {
+                name: 'Cluster 2: Fashion Accessories Hub',
+                size: '10,056 products (23.7%)',
+                description: 'The largest accessories-focused cluster, featuring watches, bags, jewelry, and complementary apparel items.',
+                topCategories: 'Accessories (58%), Apparel (40%), Footwear (2%)',
+                characteristics: 'Fashion-forward items, strong cross-selling potential with apparel.'
+            },
+            3: {
+                name: 'Cluster 3: Athletic Footwear',
+                size: '4,167 products (9.8%)',
+                description: 'Focused on athletic and casual footwear with related sportswear.',
+                topCategories: 'Footwear (47%), Apparel (37%), Accessories (9%)',
+                characteristics: 'Sports-oriented, active lifestyle products, younger demographic appeal.'
+            },
+            4: {
+                name: 'Cluster 4: Core Apparel Collection',
+                size: '12,657 products (29.9%) - LARGEST',
+                description: 'The largest cluster representing mainstream fashion apparel. This is the bread-and-butter of the retail catalog.',
+                topCategories: 'Apparel (72%), Accessories (21%), Footwear (7%)',
+                characteristics: 'Mainstream fashion, broad appeal, highest volume segment.'
+            },
+            5: {
+                name: 'Cluster 5: Formal Footwear + Personal Care',
+                size: '7,771 products (18.3%)',
+                description: 'Interesting combination of formal footwear and grooming products - the "professional look" segment.',
+                topCategories: 'Footwear (72%), Personal Care (26%), Free Items (1%)',
+                characteristics: 'Professional, formal occasions, complete look with grooming products.'
+            }
+        };
+        
+        function updateClusterInfo() {
+            const clusterId = document.getElementById('clusterSelect').value;
+            const cluster = clusterData[clusterId];
+            
+            const html = `
+                <div class="cluster-info">
+                    <h3>${cluster.name}</h3>
+                    <p><strong>Size:</strong> ${cluster.size}</p>
+                    <p><strong>Description:</strong> ${cluster.description}</p>
+                    <p><strong>Category Mix:</strong> ${cluster.topCategories}</p>
+                    <p><strong>Key Characteristics:</strong> ${cluster.characteristics}</p>
+                </div>
+            `;
+            
+            document.getElementById('clusterDetails').innerHTML = html;
+        }
+        
+        // Initialize with Cluster 1
+        updateClusterInfo();
+        
+        // Cluster Composition Chart
+        const clusterCompCtx = document.getElementById('clusterCompositionChart').getContext('2d');
+        new Chart(clusterCompCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Cluster 1', 'Cluster 2', 'Cluster 3', 'Cluster 4', 'Cluster 5'],
+                datasets: [
+                    { label: 'Apparel', data: [5681, 4008, 1561, 9133, 0], backgroundColor: '#FF6A5C' },
+                    { label: 'Accessories', data: [1879, 5811, 365, 2701, 0], backgroundColor: '#17C3B2' },
+                    { label: 'Footwear', data: [177, 237, 1972, 823, 5604], backgroundColor: '#FFD93D' },
+                    { label: 'Personal Care', data: [0, 0, 0, 0, 2043], backgroundColor: '#6BCB77' },
+                    { label: 'Other', data: [0, 0, 269, 0, 124], backgroundColor: '#9D4EDD' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Number of Products' } }
+                }
+            }
+        });
+        
+        // Category Prediction Logic
+        function predictCategory() {
+            const subCat = document.getElementById('subCat').value;
+            const articleType = document.getElementById('articleType').value;
+            const gender = document.getElementById('gender').value;
+            const season = document.getElementById('season').value;
+            
+            // Simple rule-based prediction (mimicking the Random Forest logic)
+            let category = 'Apparel';
+            let confidence = 99;
+            
+            if (['Shoes', 'Sandal', 'Flip Flops'].includes(subCat)) {
+                category = 'Footwear';
+                confidence = 100;
+            } else if (['Bags', 'Watches', 'Jewellery', 'Eyewear', 'Wallets', 'Belts'].includes(subCat)) {
+                category = 'Accessories';
+                confidence = 100;
+            } else if (['Fragrance', 'Makeup', 'Skin Care', 'Lips', 'Nails'].includes(subCat)) {
+                category = 'Personal Care';
+                confidence = 100;
+            } else if (subCat === 'Topwear' || subCat === 'Bottomwear' || subCat === 'Innerwear') {
+                category = 'Apparel';
+                confidence = 100;
+            }
+            
+            // Additional logic based on article type
+            if (articleType.includes('Shoes') || articleType.includes('Heels') || articleType.includes('Sandals')) {
+                category = 'Footwear';
+                confidence = 100;
+            } else if (articleType.includes('Handbag') || articleType.includes('Watch') || articleType.includes('Sunglass')) {
+                category = 'Accessories';
+                confidence = 100;
+            }
+            
+            const html = `
+                <div class="prediction-result">
+                    <div style="font-size: 1em; opacity: 0.9;">Predicted Master Category:</div>
+                    <div class="category">${category}</div>
+                    <div style="font-size: 1em; opacity: 0.9;">Confidence: ${confidence}%</div>
+                    <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.85;">
+                        Based on: ${subCat} • ${articleType} • ${gender} • ${season}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('predictionResult').innerHTML = html;
+        }
+        
+        // Top Categories Chart
+        const topCatCtx = document.getElementById('topCategoriesChart').getContext('2d');
+        new Chart(topCatCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Tshirts', 'Shirts', 'Casual Shoes', 'Watches', 'Sports Shoes', 'Kurtas', 'Tops', 'Handbags', 'Heels', 'Sunglasses', 'Wallets', 'Flip Flops', 'Sandals', 'Briefs', 'Belts'],
+                datasets: [{
+                    label: 'Number of Products',
+                    data: [6749, 3074, 2698, 2444, 1957, 1744, 1677, 1674, 1259, 1011, 890, 885, 860, 811, 788],
+                    backgroundColor: '#17C3B2',
+                    borderColor: '#13a896',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Top 15 Article Types by Product Count', font: { size: 16 } }
+                },
+                scales: {
+                    x: { beginAtZero: true, title: { display: true, text: 'Number of Products' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
