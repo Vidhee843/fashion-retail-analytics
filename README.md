@@ -126,3 +126,90 @@ Fashion retailers manage extensive product catalogs (40,000+ items) facing chall
 ---
 
 ## 📂 Repository Structure
+---
+
+## 🚀 How to Run
+
+### Prerequisites
+```r
+install.packages(c("tidyverse", "randomForest", "caret", "reshape2"))
+```
+
+### Execution
+1. Download dataset from [Kaggle](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset)
+2. Place `styles.csv` in project directory
+3. Run analysis:
+```r
+source("code/fashion_analysis.R")
+```
+4. Visualizations will be generated in `visualizations/` folder
+
+### View Dashboard
+Open `dashboard/fashion_dashboard.html` in any modern web browser
+
+---
+
+## 📊 Visualizations
+
+### Sample Outputs
+
+**Cluster Visualization (PCA)**
+![PCA Clusters](visualizations/cluster_visualization.png)
+
+**Feature Importance**
+![Feature Importance](visualizations/feature_importance.png)
+
+**Confusion Matrix**
+![Confusion Matrix](visualizations/confusion_matrix.png)
+
+---
+
+## 🛠️ Technical Specifications
+
+- **Language:** R 4.5.1
+- **Key Packages:** tidyverse, randomForest, caret, ggplot2
+- **Runtime:** ~15 minutes on standard laptop (8GB RAM)
+- **Reproducibility:** All analyses use `seed=42`
+
+---
+
+## 📖 Documentation
+
+- **Executive Report:** `report/Executive_Report.pdf`
+- **Presentation:** `presentation/Fashion_Analytics_Presentation.pptx`
+- **Interactive Dashboard:** `dashboard/fashion_dashboard.html`
+
+---
+
+## 🎯 Key Insights
+
+> "Fashion products naturally organize into 5 distinct clusters, and masterCategory can be predicted with 99.96% accuracy using product attributes. The subCategory field alone accounts for 53% of predictive power, making automated categorization highly feasible."
+
+---
+
+## 📧 Contact
+
+**[Your Name]**  
+Master's in Business Analytics  
+Northeastern University  
+Email: [your.email@northeastern.edu]  
+LinkedIn: [your-linkedin-profile]
+
+---
+
+## 📜 License
+
+This project is part of academic coursework at Northeastern University.  
+Dataset: [Fashion Product Images Dataset](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset) (Kaggle)
+
+---
+
+## 🙏 Acknowledgments
+
+- Professor Christoph Riedl (MISM 6200 - Introduction to Business Analytics)
+- Kaggle community for dataset availability
+- D'Amore-McKim School of Business, Northeastern University
+
+---
+
+**⭐ If you found this analysis useful, please star this repository!**
