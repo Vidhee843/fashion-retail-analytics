@@ -1,60 +1,128 @@
-# Fashion Retail Analytics — Clustering & Classification 👗
 
-An end-to-end retail analytics project using unsupervised and supervised machine learning to segment fashion products and build a high-accuracy category classifier in R.
+# 🎨 Cross-Category Product Assortment Patterns in Fashion Retail
 
-## Overview
-Analyzed **42,388 fashion products** using K-Means clustering and PCA for segmentation, then built a Random Forest classifier achieving near-perfect accuracy in predicting product categories.
+A clustering and predictive analytics study examining how 42,388 fashion products naturally group across categories and what attributes enable automated categorization.
 
-## Key Results
-- 🎯 Random Forest accuracy: **99.96%** across 7 master product categories
-- 📦 Identified **5 distinct product segments** explaining 45.2% of total variance (PC1 & PC2)
-- 💰 Delivered ROI-backed recommendations with projected **18–24 month payback period**
+**Author:** [Your Name]  
+**Course:** MISM 6200 - Introduction to Business Analytics  
+**Institution:** Northeastern University  
+**Date:** December 2024
 
-## Tech Stack
-- **Language:** R
-- **Methods:** K-Means Clustering, PCA, Random Forest, Elbow Method
-- **Libraries:** ggplot2, caret, randomForest, factoextra
+---
 
-## Project Structure
-```
-fashion-retail-analytics/
-│
-├── data/                   # Product dataset (42,388 records)
-├── scripts/
-│   ├── clustering.R        # K-Means + PCA analysis
-│   ├── classification.R    # Random Forest classifier
-│   └── visualization.R     # ggplot2 visualizations
-├── outputs/                # Cluster plots, confusion matrix, feature importance
-└── README.md
-```
+## 📊 Project Overview
 
-## Methodology
-### Clustering (Unsupervised)
-- Applied **K-Means** with k=5 selected via elbow method
-- Used **PCA** for dimensionality reduction and visualization
-- PC1 and PC2 explain **45.2% of total variance**
+### Research Question
+How do fashion products naturally cluster across master categories, and what product attributes enable reliable automated categorization?
 
-### Classification (Supervised)
-- Built **Random Forest** with 100 trees, 80/20 train-test split
-- Achieved **99.96% test accuracy** across 7 product classes
-- Feature importance analysis revealed key product attributes
+### Business Problem
+Fashion retailers manage extensive product catalogs (40,000+ items) facing challenges with:
+- Manual product categorization (labor-intensive and costly)
+- Suboptimal merchandising strategies
+- Inefficient inventory planning
+- Missed cross-selling opportunities
 
-## Business Recommendations
-1. **Automated product tagging** using the trained classifier
-2. **Cluster-based merchandising** aligned to the 5 identified segments
-3. **Seasonal inventory planning** informed by cluster demand patterns
+### Key Findings
+- ✅ **5 distinct product clusters** identified using K-means clustering
+- ✅ **99.96% prediction accuracy** achieved with Random Forest classifier
+- ✅ **subCategory is the dominant predictor** (53% of importance)
+- ✅ **Clear gender and seasonal patterns** across categories
 
-## How to Run
-```r
-# Run clustering analysis
-source("scripts/clustering.R")
+---
 
-# Run classification
-source("scripts/classification.R")
+## 🔬 Methodology
 
-# Generate visualizations
-source("scripts/visualization.R")
-```
+### Data Source
+- **Dataset:** Fashion Product Images (Kaggle)
+- **Size:** 42,388 products
+- **Attributes:** 7 master categories, 45 subcategories, 143 article types
+- **Features:** Gender, color, season, usage
 
-## Course
-MISM 6200 — Introduction to Business Analytics, Northeastern University (Fall 2024). Prof. Christoph Riedl.
+### Analytical Approach
+
+**1. Unsupervised Learning (Clustering)**
+- K-means clustering (k=2-10 tested, k=5 optimal)
+- Hierarchical clustering validation
+- PCA visualization (45.2% variance explained)
+
+**2. Supervised Learning (Classification)**
+- Random Forest classifier (100 trees)
+- 80/20 train-test split
+- Feature importance analysis
+
+**3. Cross-Category Analysis**
+- Gender × Category relationships
+- Season × Category patterns
+- Color preferences by category
+
+---
+
+## 📈 Key Results
+
+### Clustering Results
+
+| Cluster | Size | % | Primary Category | Description |
+|---------|------|---|------------------|-------------|
+| 1 | 7,737 | 18.3% | Apparel (73%) | Casual Everyday Wear |
+| 2 | 10,056 | 23.7% | Accessories (58%) | Fashion Accessories Hub |
+| 3 | 4,167 | 9.8% | Footwear (47%) | Athletic Footwear |
+| 4 | 12,657 | 29.9% | Apparel (72%) | Core Apparel Collection |
+| 5 | 7,771 | 18.3% | Footwear (72%) | Formal + Personal Care |
+
+### Prediction Performance
+
+- **Accuracy:** 99.96% (8,472/8,475 correct)
+- **Perfect accuracy** for Apparel, Footwear, and Personal Care
+- **Only 3 misclassifications** in test set
+
+### Feature Importance
+
+| Rank | Feature | Importance Score | % of Total |
+|------|---------|-----------------|------------|
+| 1 | subCategory | 12,098 | 53.4% |
+| 2 | articleType | 6,701 | 29.6% |
+| 3 | season | 2,253 | 9.9% |
+| 4 | baseColour | 485 | 2.1% |
+| 5 | usage | 389 | 1.7% |
+| 6 | gender | 309 | 1.4% |
+
+### Cross-Category Patterns
+
+**Gender Distribution:**
+- Men dominate: Footwear (62%), Apparel (53%)
+- Women dominate: Personal Care (75%), Accessories (47%)
+
+**Seasonal Distribution:**
+- Personal Care: 98% Spring products
+- Apparel: 59% Summer, 36% Fall
+- Accessories: 48% Winter, 40% Summer (balanced)
+
+---
+
+## 💼 Business Recommendations
+
+1. **Automated Categorization System**
+   - Deploy Random Forest model for real-time classification
+   - Expected: 70-90% reduction in manual tagging labor
+
+2. **Cluster-Based Merchandising**
+   - Organize stores/website using 5-cluster framework
+   - Expected: 3-7% increase in cross-category sales
+
+3. **Seasonal Inventory Planning**
+   - Q2 surge for Personal Care (98% Spring)
+   - Q3 peak for Apparel (59% Summer)
+   - Expected: 15-20% reduction in carrying costs
+
+4. **Gender-Targeted Marketing**
+   - Category-specific campaigns by gender
+   - Expected: 20-30% improvement in conversion rates
+
+5. **Data Quality Focus**
+   - Prioritize subCategory accuracy (53% of predictive power)
+
+**ROI:** $150K-$300K annual labor savings + 3-5% revenue uplift
+
+---
+
+## 📂 Repository Structure
